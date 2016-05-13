@@ -25,9 +25,9 @@ class Projectile
      fill(255, 255, 200, 255);
      stroke(255, 255, 0, 128);
      strokeWeight(2);
-     position.add(velocity);
+     position.add(velocity.copy().mult(60 * dt));
      this.wrap();
-     distance += velocity.mag();
+     distance += velocity.copy().mult(60 * dt).mag();
      if(distance > MaxDistance)
      {
        return true; 

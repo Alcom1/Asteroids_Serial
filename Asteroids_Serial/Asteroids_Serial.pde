@@ -10,13 +10,17 @@ ArrayList<RockSubtracting> asteroids;  //Array List of asteroids.
 Boolean menu;         //True if currently in menu. I wish Processing had enums. :(
 Boolean gameOver;     //Boolean state for game over display.
 
-int timerProjectile;  //Timer that tracks projectile interval.
-int timerKill;        //Timer that tracks respawn delay after the player is killed.
-int timerBonus;       //Timer for bonus display.
-int score;            //Incrementing integer for score.
-int level;            //Incrementing integer for level.
-int bonusDisplay;     //Display of the bonus added to the score.
-int highScore;        //Current high score.
+float timerProjectile;    //Timer that tracks projectile interval.
+float timerKill;          //Timer that tracks respawn delay after the player is killed.
+float timerBonus;         //Timer for bonus display.
+int score;                //Incrementing integer for score.
+int level;                //Incrementing integer for level.
+int bonusDisplay;         //Display of the bonus added to the score.
+int highScore;            //Current high score.
+
+float dt;             //Delta time
+float buzzTime;
+float buzzCounter;
 
 //Arduino
 float roll;
@@ -33,6 +37,7 @@ boolean pitchSet;
 void setup()
 {
     //
+    frameRate(24);
     printArray(Serial.list());
     port = new Serial(this, "COM5", 9600);
     port.bufferUntil('\n');
@@ -50,6 +55,11 @@ void setup()
     level = 0;
     bonusDisplay = -1; //Except for this one. -1 indicates that the bonus will not be displayed.
     highScore = 0;
+    
+    //DT and timer
+    dt = 0;
+    buzzTime = 0.5;
+    buzzCounter = 0;
     
     //Initialize all objects.
     rand = new HandlerRand();
@@ -76,11 +86,13 @@ void setup()
 
 void draw()
 {
+    //Delta time
+    dt = 1 / frameRate;
+  
     //Draw background.
     background(4, 0, 0);
     
     //Debug print
-    println(roll);
     
     if(menu)
     {
@@ -141,28 +153,47 @@ void draw()
     else
     { 
         //Increment timers
-        timerProjectile++;
-        timerBonus++;
+        timerProjectile += dt;
+        timerBonus += dt;
         if(!player.active)
         {
-            timerKill++; 
+            timerKill += dt;
+            
+            buzzCounter += dt;
+            if(buzzCounter < buzzTime)
+            {
+                println("BUZZ");
+                port.write('1'); 
+            }
+            else
+            {
+                port.write('0');
+                println("BUZZ ENDED");
+            }
+        }
+        else
+        {
+            port.write('0');  
+            buzzCounter = 0;
         }
         
         //Movement Input
-        player.velocity.x = (roll - rollOrigin) / 10;
-        player.velocity.y = (pitch - pitchOrigin) / 10;
+        player.velocity.x = (roll - rollOrigin) / 10 * 60 * dt;
+        player.velocity.y = (pitch - pitchOrigin) / 10 * 60 * dt;
+        
+        println(player.velocity.mag());
         
         //Firing input. Fires if projectile timer is above a limit.
         //As the ship moves faster, projectile rate, speed, duration, and radius increases.
-        if(button2 && timerProjectile > 18 - 2 * player.velocity.mag() && player.active)
+        if(button2 && timerProjectile * 60 > 18 - 2 * player.velocity.mag() / 60 / dt && player.active)
         {
             timerProjectile = 0;             //Reset projectile timer.
             projectiles.add(new Projectile(  //Spawn a new projectile.
                 player.getFiringPoint(),
                 player.direction,
-                5 + 0.5 * player.velocity.mag(),
-                300 + 15 * player.velocity.mag(),
-                5 + 1.2 * player.velocity.mag()));
+                5 + 0.5 * player.velocity.mag() / 60 / dt,
+                300 + 15 * player.velocity.mag() / 60 / dt,
+                5 + 1.2 * player.velocity.mag() / 60 / dt));
         }
         
         //Update asteroids
@@ -198,8 +229,8 @@ void draw()
         
         //Respawn the player.
         if(
-            (timerKill > 180 && this.allCollisionSpawn() && !gameOver) ||  //Non game over wait lasts 3 seconds plus additional collision wait.
-            (timerKill > 300))                                             //Game over wait lasts 5 seconds.
+            (timerKill > 3 && this.allCollisionSpawn() && !gameOver) ||  //Non game over wait lasts 3 seconds plus additional collision wait.
+            (timerKill > 5))                                             //Game over wait lasts 5 seconds.
         {
             //If the player reset returns a true, indiciating game over.
             if(player.reset())
@@ -237,7 +268,7 @@ void draw()
         
         //Displays any bonus added to the score.
         //Bonus display lasts for some seconds. After that, bonus is set to -1, so it won't display.
-        if(timerBonus < 90 && bonusDisplay > 0)
+        if(timerBonus < 1.5 && bonusDisplay > 0)
         {
             fill(64, 200, 64);
             strokeWeight(0);
