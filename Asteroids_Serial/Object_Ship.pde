@@ -14,7 +14,7 @@ class Ship
   Ship()
   {
     velocity = new PVector(0, 0);
-    direction = new PVector(0, 1);
+    direction = new PVector(0, -1);
     geometry = new MeshShip(new PVector(width / 2, height / 2));
     debris = new ArrayList<MeshDebris>();
     debrisVelocity = new ArrayList<PVector>();

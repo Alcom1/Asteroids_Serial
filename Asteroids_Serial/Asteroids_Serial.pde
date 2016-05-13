@@ -36,8 +36,7 @@ boolean pitchSet;
 //Setup
 void setup()
 {
-    //
-    frameRate(60);
+    //Serial
     printArray(Serial.list());
     port = new Serial(this, "COM5", 9600);
     port.bufferUntil('\n');
@@ -94,17 +93,20 @@ void draw()
     
     if(menu)
     {
-        //Draw keys, mouse, and button.
-        fill(0, 0, 0, 0);
+        //Draw buttons.
         stroke(255, 255, 255);
         strokeWeight(5);
-        rect(100, 300, 50, 50);
-        rect(160, 300, 50, 50);
-        rect(220, 300, 50, 50);
-        rect(160, 240, 50, 50);
-        ellipse(590, 320, 180, 250);
-        line(505, 280, 675, 280);
-        line(590, 280, 590, 195);
+        
+        fill(255, 0, 0);
+        rect(260, 300, 80, 80);
+        
+        fill(255, 255, 0);
+        rect(360, 300, 80, 80);
+        
+        fill(0, 0, 255);
+        rect(460, 300, 80, 80);
+        
+        fill(0, 0, 0, 0);
         if(
             mouseX > 250 &&
             mouseX < 550 &&
@@ -121,15 +123,29 @@ void draw()
         strokeWeight(0);
         textSize(64);
         text("MORE ASTEROIDS", 400, 40);
+        textSize(32);
+        textAlign(CENTER, TOP);
+        text("Turn", 300, 385);
+        text("Left", 300, 420);
+        
+        text("Fire!", 400, 385);
+        
+        text("Turn", 500, 385);
+        text("Right", 500, 420);
+        textAlign(CENTER, CENTER);
         textSize(42);
         text("START", 400, 635);
-        text("A", 125, 320);
-        text("S", 185, 320);
-        text("D", 245, 320);
-        text("W", 185, 260);
-        text("MOVE", 185, 200);
-        text("AIM & FIRE", 590, 150);
         text("High Score: " + highScore, 400, 720);
+    
+        //Draw cursor
+        fill(0, 0, 0, 0);
+        stroke(255, 0, 0);
+        strokeWeight(3);
+        ellipse(mouseX, mouseY, 20, 20);
+        line(mouseX + 5, mouseY, mouseX + 15, mouseY);
+        line(mouseX - 5, mouseY, mouseX - 15, mouseY);
+        line(mouseX, mouseY + 5, mouseX, mouseY + 15);
+        line(mouseX, mouseY - 5, mouseX, mouseY - 15);
         
         //Press the start button to begin game.
         if(
@@ -180,11 +196,11 @@ void draw()
         player.velocity.y = (pitch - pitchOrigin) / 10 * 60 * dt;
         
         //Movement turn
-        if(button1)
+        if(button3)
         {
             player.direction.rotate(PI * dt);
         }
-        if(button2)
+        if(button1)
         {
             player.direction.rotate(-PI * dt);
         }
@@ -302,16 +318,6 @@ void draw()
             text("NEW HIGH SCORE!", 400, 450);
         }
     }
-    
-    //Draw cursor
-    fill(0, 0, 0, 0);
-    stroke(255, 0, 0);
-    strokeWeight(3);
-    ellipse(mouseX, mouseY, 20, 20);
-    line(mouseX + 5, mouseY, mouseX + 15, mouseY);
-    line(mouseX - 5, mouseY, mouseX - 15, mouseY);
-    line(mouseX, mouseY + 5, mouseX, mouseY + 15);
-    line(mouseX, mouseY - 5, mouseX, mouseY - 15);
 }
 
 //Spwans asteroids based on level.
