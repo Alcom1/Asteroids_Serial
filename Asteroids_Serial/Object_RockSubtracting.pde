@@ -35,7 +35,7 @@ class RockSubtracting
   //Update position.
   void update()
   {
-    geometry.offset(velocity);
+    geometry.offset(velocity.copy().mult(60 * dt));
     geometry.wrap(50);
     geometry.display();
   }

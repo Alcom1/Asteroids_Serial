@@ -37,7 +37,7 @@ boolean pitchSet;
 void setup()
 {
     //
-    frameRate(24);
+    frameRate(60);
     printArray(Serial.list());
     port = new Serial(this, "COM5", 9600);
     port.bufferUntil('\n');
@@ -91,8 +91,6 @@ void draw()
   
     //Draw background.
     background(4, 0, 0);
-    
-    //Debug print
     
     if(menu)
     {
@@ -159,19 +157,19 @@ void draw()
         {
             timerKill += dt;
             
-            buzzCounter += dt;
-            if(buzzCounter < buzzTime)
+            if(buzzCounter == 0)
             {
-                println("BUZZ");
                 port.write('1'); 
             }
-            else
+            
+            buzzCounter += dt;
+            
+            if(buzzCounter > buzzTime && buzzCounter != 0)
             {
                 port.write('0');
-                println("BUZZ ENDED");
             }
         }
-        else
+        else if(buzzCounter != 0)
         {
             port.write('0');  
             buzzCounter = 0;
@@ -180,8 +178,6 @@ void draw()
         //Movement Input
         player.velocity.x = (roll - rollOrigin) / 10 * 60 * dt;
         player.velocity.y = (pitch - pitchOrigin) / 10 * 60 * dt;
-        
-        println(player.velocity.mag());
         
         //Firing input. Fires if projectile timer is above a limit.
         //As the ship moves faster, projectile rate, speed, duration, and radius increases.
