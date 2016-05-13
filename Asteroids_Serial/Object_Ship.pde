@@ -14,7 +14,7 @@ class Ship
   Ship()
   {
     velocity = new PVector(0, 0);
-    direction = new PVector(1,0);
+    direction = new PVector(0, 1);
     geometry = new MeshShip(new PVector(width / 2, height / 2));
     debris = new ArrayList<MeshDebris>();
     debrisVelocity = new ArrayList<PVector>();
@@ -117,7 +117,7 @@ class Ship
   //Caculates the direction the player's ship faces based on mouse coordinates.
   void calcDirection()
   {
-    direction = new PVector(mouseX - geometry.position.x, mouseY - geometry.position.y);
+    //direction = new PVector(mouseX - geometry.position.x, mouseY - geometry.position.y);
   }
   
   //gets the point from which projectiles spawn.

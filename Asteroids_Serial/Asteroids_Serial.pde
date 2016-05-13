@@ -179,6 +179,16 @@ void draw()
         player.velocity.x = (roll - rollOrigin) / 10 * 60 * dt;
         player.velocity.y = (pitch - pitchOrigin) / 10 * 60 * dt;
         
+        //Movement turn
+        if(button1)
+        {
+            player.direction.rotate(PI * dt);
+        }
+        if(button2)
+        {
+            player.direction.rotate(-PI * dt);
+        }
+        
         //Firing input. Fires if projectile timer is above a limit.
         //As the ship moves faster, projectile rate, speed, duration, and radius increases.
         if(button2 && timerProjectile * 60 > 18 - 2 * player.velocity.mag() / 60 / dt && player.active)
