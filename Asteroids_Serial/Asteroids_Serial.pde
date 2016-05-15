@@ -22,6 +22,8 @@ float dt;             //Delta time
 float buzzTime;
 float buzzCounter;
 
+PVector mark;         //Cursor position
+
 //Arduino
 float roll;
 float pitch;
@@ -42,6 +44,7 @@ void setup()
     port.bufferUntil('\n');
     
     //Setup the window.
+    frameRate(30);
     size(800, 800, P2D);
     background(4, 0, 0);
     noCursor();
@@ -59,6 +62,9 @@ void setup()
     dt = 0;
     buzzTime = 0.5;
     buzzCounter = 0;
+    
+    //Mark
+    mark = new PVector(width / 2, height / 2);
     
     //Initialize all objects.
     rand = new HandlerRand();
@@ -93,6 +99,10 @@ void draw()
     
     if(menu)
     {
+        //Move mark
+        mark.x += (roll - rollOrigin) / 10 * 60 * dt;
+        mark.y += (pitch - pitchOrigin) / 10 * 60 * dt;
+      
         //Draw buttons.
         stroke(255, 255, 255);
         strokeWeight(5);
@@ -108,10 +118,10 @@ void draw()
         
         fill(0, 0, 0, 0);
         if(
-            mouseX > 250 &&
-            mouseX < 550 &&
-            mouseY > 600 &&
-            mouseY < 680)
+            mark.x > 250 &&
+            mark.x < 550 &&
+            mark.y > 600 &&
+            mark.y < 680)
         {
             fill(100, 100, 100); //Highlight upon mouse over.
         }
@@ -141,19 +151,19 @@ void draw()
         fill(0, 0, 0, 0);
         stroke(255, 0, 0);
         strokeWeight(3);
-        ellipse(mouseX, mouseY, 20, 20);
-        line(mouseX + 5, mouseY, mouseX + 15, mouseY);
-        line(mouseX - 5, mouseY, mouseX - 15, mouseY);
-        line(mouseX, mouseY + 5, mouseX, mouseY + 15);
-        line(mouseX, mouseY - 5, mouseX, mouseY - 15);
+        ellipse(mark.x, mark.y, 20, 20);
+        line(mark.x + 5, mark.y, mark.x + 15, mark.y);
+        line(mark.x - 5, mark.y, mark.x - 15, mark.y);
+        line(mark.x, mark.y + 5, mark.x, mark.y + 15);
+        line(mark.x, mark.y - 5, mark.x, mark.y - 15);
         
         //Press the start button to begin game.
         if(
-            mousePressed && 
-            mouseX > 250 &&
-            mouseX < 550 &&
-            mouseY > 600 &&
-            mouseY < 680)
+            (button1 || button2 || button3) && 
+            mark.x > 250 &&
+            mark.x < 550 &&
+            mark.y > 600 &&
+            mark.y < 680)
         {
             this.menuSwitch();
         }
@@ -209,6 +219,7 @@ void draw()
         //As the ship moves faster, projectile rate, speed, duration, and radius increases.
         if(button2 && timerProjectile * 60 > 18 - 2 * player.velocity.mag() / 60 / dt && player.active)
         {
+            port.write('1'); 
             timerProjectile = 0;             //Reset projectile timer.
             projectiles.add(new Projectile(  //Spawn a new projectile.
                 player.getFiringPoint(),
@@ -216,6 +227,10 @@ void draw()
                 5 + 0.5 * player.velocity.mag() / 60 / dt,
                 300 + 15 * player.velocity.mag() / 60 / dt,
                 5 + 1.2 * player.velocity.mag() / 60 / dt));
+        }
+        else if(player.active)
+        {
+            port.write('0'); 
         }
         
         //Update asteroids
